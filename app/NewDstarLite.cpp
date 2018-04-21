@@ -13,7 +13,7 @@
 #include "NewDstarLite.h"
 
 
-DstarLite::DstarLite(Buildingmap::gridMatrix gridmap,ROW,COL,int start_x,int start_y,int goal_x,int goal_y) {
+DstarLite::DstarLite(Buildingmap::gridMatrix gridmap,int start_x,int start_y,int goal_x,int goal_y) {
         for (int i = 0; i< ROW; i++) {
                 for(int j = 0; j< COL; j++) {
                         if(gridmap[i][j] == 1)
@@ -24,10 +24,9 @@ DstarLite::DstarLite(Buildingmap::gridMatrix gridmap,ROW,COL,int start_x,int sta
         }
         start_node.x = start_x; start_node.y = start_y; start_node.index = start_node.y *COL + start_node.x;
         start_node.rhs = 0; start_node.min_cost_succ = 1; calculateKey(start_node);
-        open_hash.inster(std::make_pair(start_node.index, start_node));
+        open_hash.insert(std::make_pair(start_node.index, start_node));
         last_node = start_node;
-        goal_node.x = goal_x; goal_node.y = goal_y; goal_node.index = goal.y *COL + goal.x;
-        goal_node.index = goal_node.y  *COL + goal_node + goal_node.x
+        goal_node.x = goal_x; goal_node.y = goal_y; goal_node.index = goal_node.y *COL + goal_node.x;
 
 }
 
@@ -48,11 +47,11 @@ std::vector<Node> DstarLite::successor_node_list(Node currentnode)  {
 
 }
 
-double DstarLite::cost_between_nodes(state a, state b) {
+double DstarLite::cost_between_nodes(Node a, Node b) {
         return std::sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
 }
 
-double DstarLite::heuristic(state a, state b) {
+double DstarLite::heuristic(Node a, Node b) {
         return std::sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
 }
 

@@ -3,15 +3,6 @@ set(GTEST_SHUFFLE 1)
 add_executable(
     cpp-test
     main.cpp
-    test.cpp
-    MapTest.cpp
-    ../app/Map.cpp
-    AstarTest.cpp
-    ../app/Astar.cpp
-    BuildingMapTest.cpp
-   ../app/BuildingMap.cpp
-  #  WeightedAstarTest.cpp
-  #../app/WeightedAstar.cpp
 )
 include_directories(
     ${CMAKE_SOURCE_DIR}/include

@@ -14,23 +14,23 @@
 #include <array>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "Astar.hpp"
 #include "Map.hpp"
 #include "BuildingMap.hpp"
-#include "WeightedAstar.hpp"
 #include "dstar.h"
+#include "NewDstarLite.h"
 int main() {
         Map setmap;
         Map::gridMatrix map_info = setmap.getGridmap(3);
-        Astar::coordinate start = setmap.SetStart(2, 3);
-        Astar::coordinate goal = setmap.SetGoal(7, 7);
+        Buildingmap::coordinate start = setmap.SetStart(2, 3);
+        Buildingmap::coordinate goal = setmap.SetGoal(7, 7);
         Buildingmap build;
         cv::Mat Map = build.drawGrids(map_info, start, goal);
         // #############################
-        Dstar dstar(start.first,start.second,goal.first,goal.second);
-        bool check = dstar.replan();
-        if (check)
-                std::cout<<"Find the goal"<<std :: endl;
+        //  Dstar dstar(start.first,start.second,goal.first,goal.second);
+        //  bool check = dstar.replan();
+        DstarLite dstar(map_info,start.first,start.second,goal.first,goal.second);
+        //  if (check)
+        //        std::cout<<"Find the goal"<<std :: endl;
         cv::namedWindow( "Display window", cv::WINDOW_AUTOSIZE );
         cv::imshow( "Display window", Map);
         cv::waitKey(10000);

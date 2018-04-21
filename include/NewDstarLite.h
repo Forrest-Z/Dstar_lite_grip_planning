@@ -1,11 +1,11 @@
 
+#include <pair>
 #include <vector>
 #include <queue>
 #include <tr1/unordered_map>
-#include "BuildingMap.hpp"
+#include "BuildingMap.h"
 
 class Node {
-public:
 int x;
 int y;
 int index;
@@ -44,8 +44,7 @@ bool operator < (const Node &s2) const {
 
 class DstarLite {
 // Constructor
-public:
-DstarLite(Buildingmap::gridMatrix gridmap,int start_x,int start_y,int goal_x,int goal_y);
+DstarLite(Buildingmap::gridMatrix gridmap,ROW,COL,int start_x,int start_y,int goal_x,int goal_y);
 std::vector<int> map_info;
 Node start_node;
 Node goal_node;
@@ -53,15 +52,16 @@ Node last_node;
 
 private:
 double km = 0;
-std::priority_queue<Node,std::vector<Node> > open_list;
+std::priority_queue<Node,std::vector<Node>,greater<Node> > open_list;
 std::tr1::unordered_map<int, Node > open_hash;
-std::tr1::unordered_map<int, Node > node_map;
+std::tr1::unordered_map<int, NOde > node_map;
+
 std::vector<Node> successor_node_list(Node currentnode);
 std::vector<Node> predecessor_node_list(Node currentnode);
 double cost_between_nodes(Node a, Node b);
 double heuristic(Node a, Node b);
 std::vector<int> computeShortestPath();
-Node Find_min_Node(const std::vector<Node>& successor_nodes);
+Node Find_min_Node(const std::vector<Node>& successor_nodes)
 
 void calculateKey(Node currentnode);
 void calculateIndex(Node currentnode);
