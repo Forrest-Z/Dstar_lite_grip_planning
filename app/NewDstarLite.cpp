@@ -13,13 +13,21 @@
 #include "NewDstarLite.h"
 
 
-DstarLite::DstarLite(Buildingmap::gridMatrix gridmap,int start_x,int start_y,int goal_x,int goal_y) {
+DstarLite::DstarLite(Buildingmap::gridMatrix gridmap_old,Buildingmap::gridMatrix gridmap_new,int start_x,int start_y,int goal_x,int goal_y) {
         for (int i = 0; i< ROW; i++) {
                 for(int j = 0; j< COL; j++) {
-                        if(gridmap[i][j] == 1)
-                                map_info.push_back(1);
+                        if(gridmap_old[i][j] == 1)
+                                map_info_old.push_back(1);
                         else
-                                map_info.push_back(0);
+                                map_info_old.push_back(0);
+                }
+        }
+        for (int i = 0; i< ROW; i++) {
+                for(int j = 0; j< COL; j++) {
+                        if(gridmap_new[i][j] == 1)
+                                map_info_new.push_back(1);
+                        else
+                                map_info_new.push_back(0);
                 }
         }
         start_node.x = start_x; start_node.y = start_y; start_node.index = start_node.y *COL + start_node.x;
@@ -43,7 +51,7 @@ void DstarLite::updateVertex(Node currentnode) {
 
 }
 
-std::vector<Node> DstarLite::successor_node_list(Node currentnode)  {
+std::vector<Node> DstarLite::successor_node_list(Node currentnode,std::vector<int> map)  {
 
 }
 
@@ -55,7 +63,7 @@ double DstarLite::heuristic(Node a, Node b) {
         return std::sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
 }
 
-std::vector<Node> DstarLite::predecessor_node_list(Node currentnode)  {
+std::vector<Node> DstarLite::predecessor_node_list(Node currentnode,std::vector<int> map)  {
 
 }
 
@@ -64,5 +72,9 @@ std::vector<int> DstarLite::computeShortestPath() {
 }
 
 Node DstarLite::Find_min_Node(const std::vector<Node>& successor_nodes) {
+
+}
+
+bool DstarLite::isNodeValid(Node start_node,std::vector<int> map){
 
 }

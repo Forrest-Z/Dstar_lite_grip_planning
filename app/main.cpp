@@ -20,15 +20,16 @@
 #include "NewDstarLite.h"
 int main() {
         Map setmap;
-        Map::gridMatrix map_info = setmap.getGridmap(3);
+        Map::gridMatrix map_old = setmap.getGridmap(3);
+        Map::gridMatrix map_new = setmap.getGridmap(5);
         Buildingmap::coordinate start = setmap.SetStart(2, 3);
         Buildingmap::coordinate goal = setmap.SetGoal(7, 7);
         Buildingmap build;
-        cv::Mat Map = build.drawGrids(map_info, start, goal);
+        cv::Mat Map = build.drawGrids(map_old,start, goal);
         // #############################
         //  Dstar dstar(start.first,start.second,goal.first,goal.second);
         //  bool check = dstar.replan();
-        DstarLite dstar(map_info,start.first,start.second,goal.first,goal.second);
+        DstarLite dstar(map_old,map_new,start.first,start.second,goal.first,goal.second);
         //  if (check)
         //        std::cout<<"Find the goal"<<std :: endl;
         cv::namedWindow( "Display window", cv::WINDOW_AUTOSIZE );
