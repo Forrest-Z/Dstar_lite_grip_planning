@@ -1,11 +1,11 @@
 
-#include <pair>
 #include <vector>
 #include <queue>
 #include <tr1/unordered_map>
-#include "BuildingMap.h"
+#include "BuildingMap.hpp"
 
 class Node {
+public:
 int x;
 int y;
 int index;
@@ -14,6 +14,9 @@ double rhs;
 double min_cost_succ;
 std::pair<double,double> k;
 int parent_index;
+Node() {
+
+}
 bool operator == (const Node &s2) const {
         return ((x == s2.x) && (y == s2.y));
 }
@@ -44,26 +47,34 @@ bool operator < (const Node &s2) const {
 
 class DstarLite {
 // Constructor
-DstarLite(Buildingmap::gridMatrix gridmap,ROW,COL,int start_x,int start_y,int goal_x,int goal_y);
-std::vector<int> map_info;
+public:
+DstarLite(Buildingmap::gridMatrix gridmap_old,Buildingmap::gridMatrix gridmap_new,int start_x,int start_y,int goal_x,int goal_y);
+std::vector<int> map_info_old;
+std::vector<int> map_info_new;
+
+
+private:
 Node start_node;
 Node goal_node;
 Node last_node;
-
-private:
 double km = 0;
-std::priority_queue<Node,std::vector<Node>,greater<Node> > open_list;
+std::priority_queue<Node,std::vector<Node> > open_list;
 std::tr1::unordered_map<int, Node > open_hash;
-std::tr1::unordered_map<int, NOde > node_map;
-
+std::tr1::unordered_map<int, Node > node_map;
 std::vector<Node> successor_node_list(Node currentnode);
 std::vector<Node> predecessor_node_list(Node currentnode);
 double cost_between_nodes(Node a, Node b);
 double heuristic(Node a, Node b);
 std::vector<int> computeShortestPath();
-Node Find_min_Node(const std::vector<Node>& successor_nodes)
-
+double min(const double& g, const double& rhs);
+Node Find_min_Node(const std::vector<Node>& successor_nodes);
+bool isNodeValid(Node start_node,std::vector<int> map);
+int computeIndex(const int& x, const int& y, const int& column_size);
+void nodeIndexing(Node& node);
+void addNodeToMap(const Node& node, std::tr1::unordered_map<int, Node >& node_map);
 void calculateKey(Node currentnode);
-void calculateIndex(Node currentnode);
+std::pair<double,double> calculateKey(const Node& currentnode,
+                                      const Node& start_node, const double& km);
 void updateVertex(Node currentnode);
+bool AreSame(double a, double b);
 };
