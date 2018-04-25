@@ -27,11 +27,9 @@ int main() {
         Buildingmap build;
         cv::Mat Map = build.drawGrids(map_old,start, goal);
         // #############################
-        //  Dstar dstar(start.first,start.second,goal.first,goal.second);
-        //  bool check = dstar.replan();
         DstarLite dstar(map_old,map_new,start.first,start.second,goal.first,goal.second);
-        //  if (check)
         //        std::cout<<"Find the goal"<<std :: endl;
+
         cv::namedWindow( "Display window", cv::WINDOW_AUTOSIZE );
         cv::imshow( "Display window", Map);
         cv::waitKey(10000);

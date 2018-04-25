@@ -11,8 +11,8 @@
  */
 
 #include "NewDstarLite.h"
+#include "BuildingMap.hpp"
 #include <limits>
-static const int INFINITY = std::numeric_limits<double>::infinity();
 
 DstarLite::DstarLite(Buildingmap::gridMatrix gridmap_old,Buildingmap::gridMatrix gridmap_new,int start_x,int start_y,int goal_x,int goal_y) {
         for (int i = 0; i< ROW; i++) {
@@ -44,7 +44,7 @@ DstarLite::DstarLite(Buildingmap::gridMatrix gridmap_old,Buildingmap::gridMatrix
  * @return pair k = [k1 k2]
  */
 std::pair<double,double> DstarLite::calculateKey(const Node& currentnode,
-                                                 const Node& start_node, const double& km){
+                                                 const Node& start_node){
 
         // Initialize key inside function for return value
         std::pair<double,double> key;
@@ -88,7 +88,7 @@ void DstarLite::initialize() {
 
         // empty set U; 1. clear open_list; 2. clear openHash
         // clear open_list by reset open_list
-        while(!open_list.empty()) openList.pop();
+        while(!open_list.empty()) open_list.pop();
         open_hash.clear();
         node_map.clear();
         // set up km = 0
@@ -101,8 +101,8 @@ void DstarLite::initialize() {
         double rhs_infinity = INFINITY;
 
         // for all s in S, rhs(s) = inf and g(s) = inf
-        for (auto x : ROW) {
-                for(auto y : COL) {
+        for (auto x = 1; x < ROW; x++) {
+                for(auto y = 1; y < COL; y++) {
 
                         Node temp_node(x, y, g_infinity, rhs_infinity);         // initial temp_node
 
@@ -117,10 +117,10 @@ void DstarLite::initialize() {
         goal_node.rhs = 0;
 
         // update key of goal
-        goal.k = calculateKey(goal_node,start_node,km);
+        goal_node.k = calculateKey(goal_node,start_node);
         // insert goal_node to open_list
-        open_list.insert(goal_node);
-        open_hash.insert(std::make_pair<goal_node.index,goal_node>);
+        open_list.push(goal_node);
+        open_hash.insert(std::make_pair(goal_node.index,goal_node));
 }
 
 
@@ -178,17 +178,18 @@ void DstarLite::addNodeToMap(const Node& node, std::tr1::unordered_map<int, Node
 
 }
 void DstarLite::updateVertex(Node currentnode) {
+        // Line 07 assign rhs(u) to its smallerst successors' c(s,s') + g(s')
         if ( currentnode != goal_node) {
                 double tem = INFINITY;
-                td::vector<Node> successor_list;
+                std::vector<Node> successor_list;
                 successor_list = successor_node_list(currentnode);
                 for (auto node : successor_list) {
                         // calculate c(u,s') + g(s')
                         double new_tem = node.g +cost_between_nodes(node,currentnode);
-                        if(tem_new < tem)
-                                tem = tem_new;
+                        if(new_tem < tem)
+                                tem = new_tem;
                 }
-                node_map[currentnode.index].rhs = tem_new;
+                node_map[currentnode.index].rhs = tem;
         }
         // lazy remove the open_hash if currentnode belongs to open_list. Line 8
         std::priority_queue<Node,std::vector<Node> > tem_list;
@@ -198,15 +199,15 @@ void DstarLite::updateVertex(Node currentnode) {
                         Node topNode = open_list.top();
                         open_list.pop();
                         if(open_hash.find(topNode.index)!= open_hash.end())
-                                tem_list.insert(topNode);
+                                tem_list.push(topNode);
                 }
                 open_list = tem_list;
         }
-
+        // Line 09 if g(u) not euqal to rhs(u), recalclate the key value and inset the node to open_list
         if(AreSame(currentnode.g, currentnode.rhs)) {
-                currentnode.k = calculateKey(currentnode,last_node,km);
-                open_list.insert(currentnode);
-                open_hash.insert(std::make_pair<currentnode.index,currentnode>);
+                currentnode.k = calculateKey(currentnode,last_node);
+                open_list.push(currentnode);   // insert to open_list
+                open_hash.insert(std::make_pair(currentnode.index,currentnode)); // insert to open_hash
         }
 
 
@@ -217,63 +218,179 @@ std::vector<Node> DstarLite::successor_node_list(Node currentnode)  {
         std::vector<Node> successor_list;
         for(int i = -1; i < 2; i++) {
                 for (int j = -1; j < 2; j++) {
-                        int new_x = currentnode.x + i;
+                        int new_x = currentnode.x + i;     // Find its neighbours
                         int new_y = currentnode.y + j;
-                        successor_list.push_back(node_map[computeIndex(new_x, new_y, COL)]);
+                        if (new_x < 0 || new_x > COL || new_y < 0 || new_y > ROW) // if its x and y are invalid, ignore the node
+                                continue;
+                        else      // if not, recore the index of the neighbours to a vector
+                                successor_list.push_back(node_map[computeIndex(new_x, new_y, COL)]);
                 }
         }
         return successor_list;
 }
 
 double DstarLite::cost_between_nodes(Node a, Node b) {
-        if ()
+        // Build a pair for two nodes
+        std::pair<int,int> node_pair  = std::make_pair(a.index,b.index);
+        if(cost_between_nodes_map.find(node_pair) != cost_between_nodes_map.end()) // if the nodes are already in the cost map
+                return cost_between_nodes_map[node_pair];                          // return this value
+        else if(map_info_old[a.index -1] == 0 || map_info_old[b.index -1] == 0) {        // if not inside the map, verfity if one of them are walls
+                cost_between_nodes_map.insert(std::make_pair(node_pair, INFINITY));  // if is, cost between wall and nodes are INFINITY
+                return INFINITY;
+        }
+
+        else {                                                                     // if no walls, the distance is the euclidean distance
+                cost_between_nodes_map.insert(std::make_pair(node_pair, std::sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y))));
                 return std::sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
+        }
+
 }
 
 double DstarLite::heuristic(Node a, Node b) {
-        return std::sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
+        return std::sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));  // euclidean distance
 }
 
 bool DstarLite::AreSame(double a, double b)
 {
-        return fabs(a - b) < 0.01;
+        return fabs(a - b) < 0.01;    // verfity two double are same by defining a boundary
 }
 
-std::vector<Node> DstarLite::predecessor_node_list(Node currentnode,std::vector<int> map)  {
 
+// basiclly same as successor_list for eight connected neighbours
+std::vector<Node> DstarLite::predecessor_node_list(Node currentnode)  {
+        std::vector<Node> predecessor_list;
+        for(int i = -1; i < 2; i++) {
+                for (int j = -1; j < 2; j++) {
+                        int new_x = currentnode.x + i; // Find its neighbours
+                        int new_y = currentnode.y + j;
+                        if (new_x < 0 || new_x > COL || new_y < 0 || new_y > ROW) // if its x and y are invalid, ignore the node
+                                continue;
+                        else // if not, recore the index of the neighbours to a vector
+                                predecessor_list.push_back(node_map[computeIndex(new_x, new_y, COL)]);
+                }
+        }
+        return predecessor_list;
 }
 
 std::vector<int> DstarLite::computeShortestPath() {
 
         while(open_list.top() < start_node || !AreSame(start_node.rhs,start_node.g)) {
                 std::pair<double,double> key_old;
-                node topNode = open_list.top();
+                Node topNode = open_list.top();
                 key_old = topNode.k;
                 open_list.pop();
+                std::pair<double,double> key_new;
+                key_new = calculateKey(topNode,last_node);
                 // line 13
-                if(isKeySmaller(key_old,calculateKey(topNode,last_node,km))) {
+                if(isKeySmaller(key_old,key_new)) {
                         // line 14
-                        topNode.k = calculateKey(topNode,last_node,km);
-                        open_list.insert(topNode);
+                        topNode.k = calculateKey(topNode,last_node);
+                        open_list.push(topNode);
                 }
                 // line 15
-                else if(topNode.h > topNode.rhs) {
+                else if(topNode.g > topNode.rhs) {
                         topNode.g = topNode.rhs;
-
+                        std::vector<Node> predecessor_list = predecessor_node_list(topNode);
+                        for(auto node : predecessor_list) {
+                                updateVertex(node);
+                        }
+                }
+                else {
+                        topNode.rhs = INFINITY;
+                        std::vector<Node> predecessor_list = predecessor_node_list(topNode);
+                        for(auto node : predecessor_list) {
+                                updateVertex(node);
+                        }
+                        updateVertex(topNode);
                 }
         }
-
 }
-bool isKeySmaller(std::pair<double,double> p1,std::pair<double,double> p2) {
+
+
+bool DstarLite::isKeySmaller(std::pair<double,double> p1,std::pair<double,double> p2) {
         if (p1.first < p2.first) return true;
         else if (p1.first > p2.first) return false;
         return p1.second < p2.second + 0.01;
 }
 
 Node DstarLite::Find_min_Node(const std::vector<Node>& successor_nodes) {
+        Node tem = successor_nodes.front();
+        for(auto node : successor_nodes) {
+                if(tem > node)
+                        tem =  node;
+        }
+        return tem;
+}
+
+bool DstarLite::isNodeValid(Node node){
 
 }
 
-bool DstarLite::isNodeValid(Node start_node,std::vector<int> map){
+void DstarLite::Scan_for_cost_change(Node currentnode) {
+        bool update_km =  false;
+        for(int i = -1; i < 2; i++) {
+                for (int j = -1; j < 2; j++) {
+                        int new_x = currentnode.x + i; // Find its neighbours
+                        int new_y = currentnode.y + j;
+                        int index_new = computeIndex(new_x,new_y,COL);
+                        if (new_x < 0 || new_x > COL || new_y < 0 || new_y > ROW) // if its x and y are invalid, ignore the node
+                                continue;
+                        else if(map_info_old[index_new -1] != map_info_new[currentnode.index -1] ) {
 
+                                if(!update_km) {
+                                        km = heuristic(last_node,start_node);
+                                        last_node = start_node;
+                                        update_km = true;
+                                }
+                                // update nodes cost
+                                update_nodes_cost(node_map[index_new]);
+                                updateVertex(node_map[index_new]);
+                                computeShortestPath();
+                        }
+
+                }
+        }
+}
+
+void DstarLite::update_nodes_cost(Node currentnode) {
+        for(int i = -1; i < 2; i++) {
+                for (int j = -1; j < 2; j++) {
+                        int new_x = currentnode.x + i; // Find its neighbours
+                        int new_y = currentnode.y + j;
+                        if (new_x < 0 || new_x > COL || new_y < 0 || new_y > ROW) // if its x and y are invalid, ignore the node
+                                continue;
+                        else  {
+                                int index_new = computeIndex(new_x,new_y,COL);
+                                std::pair<int,int> node_pair  = std::make_pair(currentnode.index,index_new);
+                                if(map_info_new[currentnode.index -1 ] == 0 || map_info_new[index_new -1 ] == 0) {  // if not inside the map, verfity if one of them are walls
+                                        //cost_between_nodes_map.insert(std::make_pair<node_pair, INFINITY>); // if is, cost between wall and nodes are INFINITY
+                                        if(cost_between_nodes_map.find(node_pair) != cost_between_nodes_map.end()) // if the nodes are already in the cost map
+                                                cost_between_nodes_map[node_pair] = INFINITY;
+                                        else
+                                                cost_between_nodes_map.insert(std::make_pair(node_pair, INFINITY));
+                                }
+                                else {
+                                        if(cost_between_nodes_map.find(node_pair) != cost_between_nodes_map.end()) // if the nodes are already in the cost map
+                                                cost_between_nodes_map[node_pair] = std::sqrt((new_x - currentnode.x)*(new_x - currentnode.x) + (new_y - currentnode.y)*(new_y - currentnode.y));
+                                        else
+                                                // if no walls, the distance is the euclidean distance
+                                                cost_between_nodes_map.insert(std::make_pair(node_pair, std::sqrt((new_x - currentnode.x)*(new_x - currentnode.x) + (new_y - currentnode.y)*(new_y - currentnode.y))));
+                                }
+                        }
+                }
+        }
+}
+
+
+void DstarLite::replan() {
+        computeShortestPath();
+        while(start_node.index != goal_node.index) {
+                std::vector<Node> successor_list = successor_node_list(start_node);
+                // line 26 find the node has smallest c(current,s') + g(s')
+                start_node = Find_min_Node(successor_list);
+                // Move to the current node, draw the node movement
+
+                //   Scan graph for cost change
+                Scan_for_cost_change(start_node);
+        }
 }
