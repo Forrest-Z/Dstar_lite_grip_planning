@@ -66,10 +66,11 @@ double km = 0;
 std::priority_queue<Node,std::vector<Node> > open_list;
 std::tr1::unordered_map<int, Node > open_hash;
 std::tr1::unordered_map<int, Node > node_map;
-std::tr1::unordered_map<std::pair<int,int>, double > cost_between_nodes_map;
+std::tr1::unordered_map<unsigned int, double > cost_between_nodes_map;
 std::vector<Node> successor_node_list(Node currentnode);
 std::vector<Node> predecessor_node_list(Node currentnode);
 
+unsigned int hash_two_nodes(int index1, int index2);
 void initialize();
 double cost_between_nodes(Node a, Node b);
 double heuristic(Node a, Node b);

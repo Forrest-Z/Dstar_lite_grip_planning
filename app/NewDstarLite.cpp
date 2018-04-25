@@ -231,7 +231,7 @@ std::vector<Node> DstarLite::successor_node_list(Node currentnode)  {
 
 double DstarLite::cost_between_nodes(Node a, Node b) {
         // Build a pair for two nodes
-        std::pair<int,int> node_pair  = std::make_pair(a.index,b.index);
+        unsigned int node_pair  = hash_two_nodes(a.index,b.index);
         if(cost_between_nodes_map.find(node_pair) != cost_between_nodes_map.end()) // if the nodes are already in the cost map
                 return cost_between_nodes_map[node_pair];                          // return this value
         else if(map_info_old[a.index -1] == 0 || map_info_old[b.index -1] == 0) {        // if not inside the map, verfity if one of them are walls
@@ -305,7 +305,9 @@ std::vector<int> DstarLite::computeShortestPath() {
                 }
         }
 }
-
+unsigned int DstarLite::hash_two_nodes(int index1, int index2) {
+        return index1*ROW*COL*2 + index2;
+}
 
 bool DstarLite::isKeySmaller(std::pair<double,double> p1,std::pair<double,double> p2) {
         if (p1.first < p2.first) return true;
@@ -361,7 +363,7 @@ void DstarLite::update_nodes_cost(Node currentnode) {
                                 continue;
                         else  {
                                 int index_new = computeIndex(new_x,new_y,COL);
-                                std::pair<int,int> node_pair  = std::make_pair(currentnode.index,index_new);
+                                unsigned int node_pair  = hash_two_nodes(currentnode.index,index_new);
                                 if(map_info_new[currentnode.index -1 ] == 0 || map_info_new[index_new -1 ] == 0) {  // if not inside the map, verfity if one of them are walls
                                         //cost_between_nodes_map.insert(std::make_pair<node_pair, INFINITY>); // if is, cost between wall and nodes are INFINITY
                                         if(cost_between_nodes_map.find(node_pair) != cost_between_nodes_map.end()) // if the nodes are already in the cost map
