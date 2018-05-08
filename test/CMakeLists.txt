@@ -3,8 +3,13 @@ set(GTEST_SHUFFLE 1)
 add_executable(
     cpp-test
     main.cpp
+    NewDstarLiteTest.cpp
+    ../app/NewDstarLite.cpp
+    ../app/BuildingMap.cpp
+    ../app/Map.cpp
 )
 include_directories(
+    ${CMAKE_SOURCE_DIR}/app
     ${CMAKE_SOURCE_DIR}/include
     ${gmock_SOURCE_DIR}/include
 )

@@ -4,7 +4,7 @@
  * You may use, distribute and modify this code under the
  * terms of the MIT license, please visit :
    https://github.com/zzjkf2009/Midterm_Astar/blob/master/LICENSE
- ***@brief This file define two functions of <Map> class
+ ******@brief This file define two functions of <Map> class
  */
 
 #include "Map.hpp"
@@ -82,6 +82,20 @@ Map::gridMatrix Map::getGridmap(const int& index) {
                         {1,1,1,1,1,1,1,1,1,1}
                 }
         };
+        Map::gridMatrix gridMap_6 = {
+                {
+                        {1,1,1,1,1,1,1,1,1,1},
+                        {1,1,0,1,0,0,0,0,0,0},
+                        {1,1,1,1,1,1,1,1,1,1},
+                        {0,0,0,0,0,1,0,0,1,1},
+                        {1,1,1,1,1,1,1,1,1,1},
+                        {1,1,0,0,0,0,0,0,0,0},
+                        {1,1,1,1,1,1,1,1,1,1},
+                        {0,0,1,0,0,0,0,0,1,1},
+                        {1,1,1,0,0,0,0,1,1,1},
+                        {1,1,1,1,1,1,1,1,1,1}
+                }
+        };
         switch (index) {
         case 1:
                 return gridMap_1;
@@ -97,6 +111,9 @@ Map::gridMatrix Map::getGridmap(const int& index) {
                 break;
         case 5:
                 return gridMap_5;
+                break;
+        case 6:
+                return gridMap_6;
                 break;
         default:
                 return gridMap_1;
