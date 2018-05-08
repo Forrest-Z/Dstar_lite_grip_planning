@@ -23,4 +23,5 @@ to run the unit test
 ```
 
 ## Result
-![gif-1]https://github.com/zzjkf2009/Dstar_lite_grip_planning/result
+![gif-1](https://github.com/zzjkf2009/Dstar_lite_grip_planning/blob/master/result/1.gif)
+![gif-2](https://github.com/zzjkf2009/Dstar_lite_grip_planning/blob/master/result/2.gif)
