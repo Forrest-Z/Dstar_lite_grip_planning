@@ -15,7 +15,6 @@
 #include <opencv2/opencv.hpp>
 #include "Map.hpp"
 #include "BuildingMap.hpp"
-#include "dstar.h"
 #include "NewDstarLite.h"
 
 /**
